@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.special as sp
+import scipy.stats as stats
 import matplotlib.pyplot as plt
 
 # Test statistiques pour variables qualitatives dans un tableau de contingence.
@@ -38,11 +39,11 @@ def get_exemple():
 
 # Conditions:
 # $n ≥ 30$
-# $$T_{ij} ≥ 5 \forall i,j$$
-def main(O, α=0.05, rows=2, cols=2):
+# $$E_{ij} ≥ 5 \forall i,j$$
 
-    # $E_{ij} = \frac{Total_{Colonne} \times Total_{Ligne}}{Total}$
-    
+# $E_{ij} = \frac{Total_{Colonne} \times Total_{Ligne}}{Total}$
+
+def main(O, α=0.05, rows=2, cols=2):
     E = np.zeros((rows, cols))
     for i in range(rows):
         for j in range(cols):
@@ -71,24 +72,66 @@ def main(O, α=0.05, rows=2, cols=2):
     # v et alpha servent a déterminer la valeur critique
     print("ν", v)
 
-    # if X^2 > valeur critique => rejette H0
-
-    # si on ne rejette pas: 
     # Interprétation: Avec un seuil de signification de 5%,
     # on ne peut pas affimer qu'il exstait un lien entre ... et ... 
 
+    # Valeur critique : χ²_critique tel que P(χ² > χ²_critique) = α
+    χ_crit = stats.chi2.ppf(1 - α, df=v)
 
-    # Coeff de contingence et coefficient de Cramér
+    # p-valeur : probabilité d'obtenir un χ² aussi grand sous H0
+    p_value = stats.chi2.sf(χ, df=v)   # sf = 1 - cdf
+
+    print("\n--- Interprétation ---")
+    print(f"χ²          = {χ:.4f}")
+    print(f"χ²_critique = {χ_crit:.4f}  (α={α}, ν={v})")
+    print(f"p-valeur    = {p_value:.4f}")
+
+    if χ > χ_crit:   # équivalent à p_value < α
+        print(f"REJETTE H0 (χ² > χ²_critique, p={p_value:.4f} < α={α}).")
+        print("Il existe un lien statistiquement significatif entre les deux variables.")
+        cramer_interpretation(V)
+    else:
+        print(f"NE rejette PAS H0 (χ² ≤ χ²_critique, p={p_value:.4f} ≥ α={α}).")
+        print("On ne peut pas affirmer qu'il existe un lien entre les deux variables.")
+
+
+    # Coeff de contingence et coefficient de Cramér (si lien existe)
     # Nombres servant à déterminer l'instensité d'un lien 
     # statistique existant entre deux variables dont au moins
     # une a une echelle nominale ou ordinale
+    # tend vers 0 si pas de lien, vers 1 si lien fort
+    
+    n = np.sum(O)
+    # Coeff de contingence:
 
     # $C = \sqrt{\frac{χ^2}{n+χ^2}}$
 
-    C = np.sqrt(χ / (np.sum(O) + χ))
+    C = np.sqrt(χ / (n + χ))
     print("C", C)
 
-    # V = 
+    # Coefficient de Cramér:
+
+    # V = $\sqrt{\frac{χ^2}{n \times \min(rows-1, cols-1)}}$
+
+    V = np.sqrt(χ / (n * np.min([rows - 1, cols - 1])))
+    print("V", V)
+
+
+
+def cramer_interpretation(V):
+    print(f"  Coefficient de Cramér V = {V:.4f}")
+    if V < 0.1:
+        intensite = "négligeable"
+    elif V < 0.2:
+        intensite = "faible"
+    elif V < 0.4:
+        intensite = "modérée"
+    elif V < 0.6:
+        intensite = "forte"
+    else:
+        intensite = "très forte"
+    print(f"  → Intensité du lien : {intensite} (V={V:.4f})")
+
 
 if __name__ == "__main__":
     import argparse

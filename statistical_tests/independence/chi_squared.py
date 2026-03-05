@@ -77,9 +77,19 @@ def main(O, α=0.05, rows=2, cols=2):
 
     # Valeur critique : χ²_critique tel que P(χ² > χ²_critique) = α
     χ_crit = stats.chi2.ppf(1 - α, df=v)
+    # PPF = En dessous de quelle valeur se trouvent p% des observations ?
 
     # p-valeur : probabilité d'obtenir un χ² aussi grand sous H0
     p_value = stats.chi2.sf(χ, df=v)   # sf = 1 - cdf
+
+    # # $f(x) = \frac{x^{k/2-1}e^{-x/2}}{2^{k/2}\Gamma(k/2)}$
+
+    # cdf = 0
+    # if χ > 0:
+    #     cdf_numerator = (χ**(v/2-1) * np.exp(-χ/2))
+    #     cdf_denominator = 2**(v/2) * sp.gamma(v/2)
+    #     cdf = cdf_numerator / cdf_denominator
+    #     print(f"Custom CDF: {cdf} ; p-value: {1 - cdf}")
 
     print("\n--- Interprétation ---")
     print(f"χ²          = {χ:.4f}")

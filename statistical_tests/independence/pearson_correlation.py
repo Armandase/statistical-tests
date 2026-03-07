@@ -69,6 +69,12 @@ def main(X, Y, alpha, h1):
         print("NE rejette PAS H0. On ne peut pas affirmer qu'il existe une corrélation significative entre les deux variables.")
 
     print(f"p-valeur = {p_value:.4f}")
+    if p_value < alpha:
+        print(f"\tLa p-valeur ({p_value:.4f}) est inférieure à alpha ({alpha}) : on rejette H0.")
+    else:
+        print(f"\tLa p-valeur ({p_value:.4f}) est supérieure ou égale à alpha ({alpha}) : on ne rejette pas H0.")
+
+
 
 
 if __name__ == "__main__":
